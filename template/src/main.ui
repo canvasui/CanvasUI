@@ -1,0 +1,17 @@
+<style>
+.hello {
+    font-size: 50px;
+}
+</style>
+
+<template>
+    <text class="hello" content="hello { name } !"></text>
+</template>
+
+<script>
+return {
+    data: {
+        name: 'world',
+    },
+}
+</script>

@@ -1,0 +1,10 @@
+{
+  "name": "canvasui-app",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "build": "node ./script/build.js"
+  },
+  "author": "",
+  "license": "Anti 996"
+}
