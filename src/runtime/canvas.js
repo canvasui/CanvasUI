@@ -9,7 +9,7 @@ class Canvas {
 
     launch(component) {
         this.component = component
-        this.component.vm.init && this.component.vm.init()
+        this.component.initQueue.forEach(callback => callback())
         requestAnimationFrame(this.mainloop.bind(this))
     }
 

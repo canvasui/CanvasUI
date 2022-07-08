@@ -1,25 +1,23 @@
-function bindData(component, style, config) {
+function bindData(component, style, script) {
     let rootComponent = component
     let proxyCallbackMap = new Map()
     let currentProxyCallback = null
-    // data
-    let vm = proxy(config.data)
+    // data & methods
+    function init(callback) {
+        component.initQueue.push(callback)
+    }
+    let config = Object.entries(eval(`(function() {${script}})()`))
+    let data = config.filter(item => typeof item[1] !== 'function')
+    let methods = config.filter(item => typeof item[1] === 'function')
+    let vm = proxy(Object.fromEntries(data))
     vm.component = component
-    // methods
-    for (let name in config.methods) {
-        config.methods[name].match(/([\S]+?\(([\s\S]*?)\))/)
-        let functionHead = RegExp.$1
-        let functionBody = config.methods[name].replace(functionHead, '')
-        let functionArgs = []
-        if (RegExp.$2 !== '') {
-            functionArgs = RegExp.$2.split(',')
+    for (let method of methods) {
+        let [_name, _body] = method
+        with(vm) {
+            vm[_name] = (...args) => {
+                eval(`(${_body})(...args)`)
+            }
         }
-        let args = []
-        for (let arg of functionArgs) {
-            args.push(arg.trim())
-        }
-        let f = new Function(...args, functionBody)
-        vm[name] = f.bind(vm)
     }
     // 遍历 component 及其子组件, 收集依赖(对使用模板语法的 prop 注册回调函数)
     // 并绑定样式和设置盒模型
