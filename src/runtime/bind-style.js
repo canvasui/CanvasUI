@@ -1,14 +1,14 @@
-class StyleBinder {
-    constructor(template, style) {
-        this.template = template
-        this.style = style
+function bindStyle(component, style) {
+    traverse(component)
+
+    function traverse(component) {
+        compute(component)
+        for (let child of component.children) {
+            traverse(child)
+        }
     }
 
-    bind() {
-        this.traverse(this.template)
-    }
-
-    match(component, selector) {
+    function match(component, selector) {
         if (selector[0] === '#') {
             let id = component.props.id
             if (id === selector.slice(1)) {
@@ -28,7 +28,7 @@ class StyleBinder {
         }
     }
 
-    specificity(selectors) {
+    function specificity(selectors) {
         let s = [0, 0, 0, 0]
         for (let part of selectors) {
             if (part[0] === '#') {
@@ -42,7 +42,7 @@ class StyleBinder {
         return s
     }
 
-    compare(s1, s2) {
+    function compare(s1, s2) {
         if (s1[0] !== s2[0]) {
             return s1[0] > s2[0]
         } else if (s1[1] !== s2[1]) {
@@ -56,37 +56,31 @@ class StyleBinder {
         }
     }
 
-    compute(component) {
+    function compute(component) {
+        component.style = {}
         ruleLoop:
-        for (let rule of this.style) {
+        for (let rule of style) {
             let selectors = rule.selector.split(' ').reverse()
             let parent = component
             for (let part of selectors) {
-                if (this.match(parent, part)) {
+                if (match(parent, part)) {
                     parent = parent.parent
                 } else {
                     continue ruleLoop
                 }
             }
-            let specificity = this.specificity(selectors)
+            let newSpecificity = specificity(selectors)
             let style = component.style
             for (let [property, value] of Object.entries(rule.declaration)) {
                 style[property] = style[property] ?? {}
-                style[property].specificity = style[property].specificity ?? specificity
-                if (this.compare(style[property].specificity, specificity)) {
+                style[property].specificity = style[property].specificity ?? newSpecificity
+                if (compare(style[property].specificity, newSpecificity)) {
                     // 如果原样式比新样式的优先级更高, 则无需改变
                     continue
                 }
                 // 后来优先原则
                 style[property].value = value
             }
-        }
-    }
-
-    traverse(component) {
-        this.compute(component)
-        for (let child of component.children) {
-            this.traverse(child)
         }
     }
 }

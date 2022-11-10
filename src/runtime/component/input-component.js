@@ -1,7 +1,6 @@
 class InputComponent extends Component {
-    constructor(component, context) {
-        super(component, context)
-        this.firstDraw = true
+    constructor(template, context) {
+        super(template, context)
         this.focus = false
         this.array = []
         this.index = -1
@@ -59,7 +58,7 @@ class InputComponent extends Component {
                 this.borderColor = '#dcdfe6'
             }
         })
-        this.click((event) => {
+        this.tap((event) => {
             this.focus = true
             this.borderColor = '#409eff'
             // 鼠标位置插入光标
@@ -71,7 +70,7 @@ class InputComponent extends Component {
                 for (let i = 1; i < this.value.length; i++) {
                     let width = this.context.measureText(this.value.slice(0, i)).width
                     if (Math.abs(this.startPosition + width - event.clientX) < 7) {
-                        this.index = i
+                        this.index = i - 1
                         break
                     }
                 }
@@ -121,7 +120,7 @@ class InputComponent extends Component {
         this.mouseup(() => {
             this.selecting = false
         })
-        window.addEventListener('click', (event) => {
+        document.addEventListener('click', (event) => {
             if (!(event.clientX >= this.layout.left &&
                 event.clientX <= this.layout.right &&
                 event.clientY >= this.layout.top &&
@@ -132,7 +131,7 @@ class InputComponent extends Component {
                 this.selected = { start: -1, end: -1 }
             }
         })
-        window.addEventListener('keydown', (event) => {
+        document.addEventListener('keydown', (event) => {
             if (this.focus) {
                 let key = event.key
                 if (key === 'Backspace') {
@@ -146,18 +145,18 @@ class InputComponent extends Component {
                             this.selected = { start: -1, end: -1}
                         } else {
                             this.array.splice(this.index, 1)
-                            this.index -= 1    
+                            this.index -= 1
                         }
                     }
                 } else if (key === 'ArrowLeft') {
                     if (this.index > -1) {
-                        this.index -= 1                        
+                        this.index -= 1
                     }
                 } else if (key === 'ArrowRight') {
                     if (this.index < this.array.length - 1) {
-                        this.index += 1                        
+                        this.index += 1
                     }
-                } else if (event.metaKey) {
+                } else if (event.metaKey || event.ctrlKey) {
                     if (key === 'c') {
                         navigator.clipboard.writeText(this.selectedValue)
                     } else if (key === 'v') {
@@ -178,6 +177,7 @@ class InputComponent extends Component {
                                 this.selected = { start: -1, end: -1 }
                                 this.index -= deleteLength
                                 this.index += text.length
+                                this.vm[this.bind] = this.value
                             } else {
                                 // 检查所粘贴内容是否超出输入框
                                 let temp = this.array.slice(0)
@@ -189,7 +189,8 @@ class InputComponent extends Component {
                                     return
                                 }
                                 this.array.splice(this.index + 1, 0, ...text.split(''))
-                                this.index += text.length    
+                                this.index += text.length
+                                this.vm[this.bind] = this.value
                             }
                         })
                     } else if (key === 'x') {
@@ -203,14 +204,14 @@ class InputComponent extends Component {
                         this.selected = { start: 0, end: this.array.length - 1}
                     }
                 } else {
-                    if (key === 'Enter' || key === 'Shift') {
+                    if (key === 'Enter' || key === 'Shift' || key === 'Alt') {
                         return
                     }
                     this.context.font = '14px sans-serif'
                     if (this.selected.start !== -1 && this.selected.end !== -1) {
                         let start = Math.min(this.selected.start, this.selected.end)
                         let end = Math.max(this.selected.start, this.selected.end)
-                        this.array.splice(start, end - start + 1, event.key)
+                        this.array.splice(start, end - start + 1, key)
                         this.index = start
                         this.selected = { start: -1, end: -1}
                     } else {
@@ -219,7 +220,7 @@ class InputComponent extends Component {
                             return
                         }
                         this.index += 1
-                        this.array.splice(this.index, 0, event.key)    
+                        this.array.splice(this.index, 0, key)
                     }
                 }
                 this.vm[this.bind] = this.value
@@ -240,42 +241,35 @@ class InputComponent extends Component {
     }
 
     draw() {
-        if (this.firstDraw) {
-            this.firstDraw = false
-            this.array = this.props.value.split('')
-        }
+        pen.reset()
+        this.array = this.props.value.split('')
         // 边框
         let width = parseInt(this.style['width'].value)
         let height = parseInt(this.style['height'].value)
-        this.roundedRect(this.layout.left, this.layout.top, width, height, 4, this.borderColor)
+        pen.drawRect(this.layout.left, this.layout.top, width, height, 4)
+        pen.stroke(this.borderColor)
         // 光标
         if (this.focus) {
-            this.context.beginPath()
-            this.context.moveTo(this.caretPosition, this.layout.top + 12)
-            this.context.lineTo(this.caretPosition, this.layout.bottom - 12)
-            this.context.strokeStyle = this.caretColor
-            this.context.stroke()    
+            let x = this.caretPosition
+            let startY = this.layout.top + 12
+            let endY = this.layout.bottom - 12
+            pen.drawLine(x, startY, x, endY, this.caretColor)
         }
-        // 输入的内容
-        this.context.textBaseline = 'top'
-        this.context.font = '14px sans-serif'
         // 选中状态
         if (this.selected.start !== -1 && this.selected.end !== -1) {
-            this.context.fillStyle = '#b2d2fd'
             let start = Math.min(this.selected.start, this.selected.end)
             let end = Math.max(this.selected.start, this.selected.end)
             start = this.startPosition + this.context.measureText(this.value.slice(0, start)).width
             end = this.startPosition + this.context.measureText(this.value.slice(0, end + 1)).width
-            this.context.fillRect(start, this.layout.top, end - start, 38)    
+            pen.drawRect(start, this.layout.top, end - start, 38, 0)
+            pen.fill('#b2d2fd')
         }
-        // 文字本身
-        this.context.fillStyle = '#606266'
-        this.context.fillText(this.value, this.startPosition, this.layout.top + 12)
+        // 输入的文字本身
+        pen.drawText(this.value, this.startPosition, this.layout.top + 12, 14, '#606266')
         // hint
         if (this.array.length === 0) {
             if (this.props.hint) {
-                this.context.fillStyle = '#dcdfe6'
-                this.context.fillText(this.props.hint, this.startPosition, this.layout.top + 12)
+                pen.drawText(this.props.hint, this.startPosition, this.layout.top + 12, 14, '#dcdfe6')
             }
         }
     }

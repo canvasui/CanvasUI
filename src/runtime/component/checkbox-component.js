@@ -1,6 +1,6 @@
 class CheckboxComponent extends Component {
-    constructor(component, context) {
-        super(component, context)
+    constructor(template, context) {
+        super(template, context)
         this.firstDraw = true
         this.value = false
         this.borderColor = '#dcdfe6'
@@ -33,38 +33,32 @@ class CheckboxComponent extends Component {
         }, () => {
             this.borderColor = '#dcdfe6'
         })
-        this.click(() => {
+        this.tap(() => {
             this.value = !this.value
             this.vm[this.bind] = this.value
         })
     }
 
     draw() {
+        pen.reset()
         if (this.firstDraw) {
             this.firstDraw = false
             // 因为传入的属性值为字符串类型, 而不是布尔类型, 所以需要进一步判断
-            if (this.props.value === 'true') {
-                this.value = true
-            } else if (this.props.value = 'false') {
-                this.value = false
-            }
+            this.value = {
+                'true': true,
+                'false': false,
+            }[this.props.value]
         }
         // 边框
-        this.roundedRect(this.layout.left, this.layout.top, 14, 14, 2, this.borderColor)
+        pen.drawRect(this.layout.left, this.layout.top, 14, 14, 2)
+        pen.stroke(this.borderColor)
         // 背景
-        this.context.fillStyle = this.backgroundColor
-        this.context.fill()
+        pen.fill(this.backgroundColor)
         // 对勾
         if (this.value) {
-            this.context.textBaseline = 'top'
-            this.context.font = '14px sans-serif'
-            this.context.fillStyle = 'white'
-            this.context.fillText('✔', this.layout.left + 1, this.layout.top)
+            pen.drawText('✔', this.layout.left + 1, this.layout.top, 14, 'white')
         }
         // 文字
-        this.context.textBaseline = 'top'
-        this.context.font = '14px sans-serif'
-        this.context.fillStyle = this.labelColor
-        this.context.fillText(this.props.label, this.layout.left + 24, this.layout.top)
+        pen.drawText(this.props.label, this.layout.left + 24, this.layout.top, 14, this.labelColor)
     }
 }

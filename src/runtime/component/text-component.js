@@ -1,6 +1,6 @@
 class TextComponent extends Component {
-    constructor(component, context) {
-        super(component, context)
+    constructor(template, context) {
+        super(template, context)
     }
 
     setBox() {
@@ -14,9 +14,9 @@ class TextComponent extends Component {
     }
 
     draw() {
-        this.context.textBaseline = 'top'
-        this.context.font = `${this.style['font-size']?.value ?? '16px'} sans-serif`
-        this.context.fillStyle = this.style['color']?.value ?? 'black'
-        this.context.fillText(this.props.content, this.layout.left, this.layout.top)
+        pen.reset()
+        let fontSize = parseInt(this.style['font-size']?.value ?? 16)
+        let fontColor = this.style['color']?.value ?? 'black'
+        pen.drawText(this.props.content, this.layout.left, this.layout.top, fontSize, fontColor)
     }
 }

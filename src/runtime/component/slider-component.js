@@ -1,6 +1,6 @@
 class SliderComponent extends Component {
-    constructor(component, context) {
-        super(component, context)
+    constructor(template, context) {
+        super(template, context)
         this.firstDraw = true,
         this.value = 0
         this.block = {
@@ -24,20 +24,20 @@ class SliderComponent extends Component {
     }
 
     drag() {
-        window.addEventListener('mousedown', (event) => {
-            if (event.clientX >= this.block.left &&
-                event.clientX <= this.block.right &&
-                event.clientY >= this.block.top &&
-                event.clientY <= this.block.bottom)
+        document.addEventListener('panstart', (event) => {
+            if (event.detail.startX >= this.block.left &&
+                event.detail.startX <= this.block.right &&
+                event.detail.startY >= this.block.top &&
+                event.detail.startY <= this.block.bottom)
             {
                 this.block.mousedown = true
-                this.block.offsetX = event.clientX - this.block.left
+                this.block.offsetX = event.detail.startX - this.block.left
                 document.body.style.cursor = 'grabbing'
             }
         })
-        window.addEventListener('mousemove', (event) => {
+        document.addEventListener('panmove', (event) => {
             if (this.block.mousedown){
-                let left = event.clientX - this.block.offsetX
+                let left = event.detail.clientX - this.block.offsetX
                 if (left < this.layout.left) {
                     left = this.layout.left
                 } else if (left > this.layout.right - 20) {
@@ -48,8 +48,18 @@ class SliderComponent extends Component {
                 this.value = Math.floor((this.block.left - this.layout.left) / (this.layout.right - this.layout.left - 20) * 100)
                 this.vm[this.bind] = this.value
                 document.body.style.cursor = 'grabbing'
-            } else if (
-                event.clientX >= this.block.left &&
+            }
+        })
+        document.addEventListener('panend', (event) => {
+            this.block.mousedown = false
+            document.body.style.cursor = 'grab'
+        })
+    }
+
+    registerEvent() {
+        this.drag()
+        document.addEventListener('mousemove', (event) => {
+            if (event.clientX >= this.block.left &&
                 event.clientX <= this.block.right &&
                 event.clientY >= this.block.top &&
                 event.clientY <= this.block.bottom)
@@ -57,16 +67,10 @@ class SliderComponent extends Component {
                 document.body.style.cursor = 'grab'
             }
         })
-        window.addEventListener('mouseup', (event) => {
-            this.block.mousedown = false
-        })
-    }
-
-    registerEvent() {
-        this.drag()
     }
 
     draw() {
+        pen.reset()
         if (this.firstDraw) {
             this.firstDraw = false
             if (this.props.value) {
@@ -76,33 +80,21 @@ class SliderComponent extends Component {
         // 滑条
         let width = parseInt(this.style['width'].value) - 20
         let height = 6
-        this.roundedRect(this.layout.left + 10, this.layout.top + 7, width, height, 3, '#e4e7ed')
-        this.context.fillStyle = '#e4e7ed'
-        this.context.fill()
+        pen.drawRect(this.layout.left + 10, this.layout.top + 7, width, height, 3)
+        pen.fill('#e4e7ed')
         // 滑块
         this.block.left = this.layout.left + (this.layout.right - this.layout.left - 20) / 100 * this.value
         this.block.right = this.block.left + 20
         this.block.top = this.layout.top
-        this.block.bottom = this.layout.bottom 
-        this.context.beginPath()
+        this.block.bottom = this.layout.bottom
         let x = this.block.left + 10
         let y = this.layout.top + 10
-        this.context.arc(x, y, 10, 0, 2 * Math.PI)
-        this.context.fillStyle = 'white'
-        this.context.fill()
-        this.context.strokeStyle = '#409eff'
-        this.context.lineWidth = 2
-        this.context.stroke()
-        this.context.lineWidth = 1
+        pen.drawCircle(x, y, 10)
+        pen.fill('white')
+        pen.stroke('#409eff', 2)
         // 文字
         if (this.block.mousedown) {
-            this.context.textBaseline = 'middle'
-            this.context.textAlign = 'center'
-            this.context.font = '12px sans-serif'
-            this.context.fillStyle = '#409eff'
-            this.context.fillText(this.value, x, y)
-            this.context.textBaseline = 'top'
-            this.context.textAlign = 'left'
+            pen.drawText(this.value, x, y - 6, 12, '#409eff', 'center')
         }
     }
 }

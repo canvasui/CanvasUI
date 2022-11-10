@@ -2,24 +2,21 @@ class Canvas {
     constructor() {
         this.canvas = document.querySelector('canvas')
         this.context = this.canvas.getContext('2d')
+        this.component = null
         this.responsive()
         this.setDefaultCursor()
     }
 
-    launch(component, reLayout) {
+    launch(component) {
         this.component = component
-        this.reLayout = reLayout
-        // 读取图片尺寸, 重新排版
-        for (let child of component.children) {
-            if (child.constructor.name === 'ImageComponent') {
-                child.setBox()
-                reLayout()
-            }
-        }
-        setInterval(() => {
-            this.context.clearRect(0, 0, this.canvas.width, this.canvas.height)
-            this.draw(component)
-        }, 1000/60)
+        this.component.vm.init && this.component.vm.init()
+        requestAnimationFrame(this.mainloop.bind(this))
+    }
+
+    mainloop() {
+        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height)
+        this.draw(this.component)
+        requestAnimationFrame(this.mainloop.bind(this))
     }
 
     draw(component) {
@@ -30,19 +27,32 @@ class Canvas {
     }
 
     responsive() {
-        this.canvas.width = window.innerWidth
-        this.canvas.height = window.innerHeight
+        let timer = null
+        let resize = () => {
+            let dpr = window.devicePixelRatio
+            if ('ontouchstart' in document) {
+                dpr = 1
+            }
+            this.canvas.width = window.innerWidth * dpr
+            this.canvas.height = window.innerHeight * dpr
+            this.canvas.style.width = `${window.innerWidth}px`
+            this.canvas.style.height = `${window.innerHeight}px`
+            this.context.scale(dpr, dpr)
+        }
+        resize()
         window.addEventListener('resize', () => {
-            this.canvas.width = window.innerWidth
-            this.canvas.height = window.innerHeight
-            this.component.style['width'].value = this.canvas.width
-            this.component.style['height'].value = this.canvas.height
-            this.reLayout()
+            clearTimeout(timer)
+            timer = setTimeout(() => {
+                resize()
+                this.component.style['width'].value = window.innerWidth
+                this.component.style['height'].value = window.innerHeight
+                layout(this.component, true)
+            }, 100)
         })
     }
 
     setDefaultCursor() {
-        window.addEventListener('mousemove', () => {
+        document.addEventListener('mousemove', () => {
             document.body.style.cursor = 'auto'
         })
     }

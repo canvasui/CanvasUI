@@ -1,6 +1,6 @@
 class RadioComponent extends Component {
-    constructor(component, context) {
-        super(component, context)
+    constructor(template, context) {
+        super(template, context)
         this.firstDraw = true
         this.checked = false
         this.borderColor = '#dcdfe6'
@@ -21,7 +21,7 @@ class RadioComponent extends Component {
     }
 
     registerEvent() {
-        this.click(() => {
+        this.tap(() => {
             for (let item of RadioComponent.group[this.bind]) {
                 item.checked = false
             }
@@ -37,6 +37,7 @@ class RadioComponent extends Component {
     }
 
     draw() {
+        pen.reset()
         if (this.firstDraw) {
             this.firstDraw = false
             if (this.props.value === this.props.option) {
@@ -49,26 +50,16 @@ class RadioComponent extends Component {
             }
         }
         // 选择框
-        this.context.beginPath()
         let x = this.layout.left + 8
         let y = this.layout.top + 8
-        this.context.arc(x, y, 8, 0, 2 * Math.PI)
-        this.context.fillStyle = 'white'
-        this.context.fill()
-        this.context.strokeStyle = this.borderColor
-        this.context.stroke()
+        pen.drawCircle(x, y, 8)
+        pen.fill('white')
+        pen.stroke(this.borderColor)
         if (this.checked) {
-            this.context.beginPath()
-            this.context.arc(x, y, 5, 0, 2 * Math.PI)
-            this.context.strokeStyle = '#409eff'
-            this.context.lineWidth = 5
-            this.context.stroke()
-            this.context.lineWidth = 1    
+            pen.drawCircle(x, y, 5)
+            pen.stroke('#409eff', 5)
         }
         // 文字
-        this.context.textBaseline = 'top'
-        this.context.font = ' 14px sans-serif'
-        this.context.fillStyle = '#606266'
-        this.context.fillText(this.props.label, this.layout.left + 26, this.layout.top + 1)
+        pen.drawText(this.props.label, this.layout.left + 26, this.layout.top + 1, 14, '#606266')
     }
 }

@@ -1,6 +1,6 @@
 class SelectComponent extends Component {
-    constructor(component, context) {
-        super(component, context)
+    constructor(template, context) {
+        super(template, context)
         this.firstDraw = true
         this.options = []
         this.selected = ''
@@ -29,14 +29,14 @@ class SelectComponent extends Component {
                 this.borderColor = '#dcdfe6'
             }
         })
-        this.click(() => {
-            this.borderColor = '#409eff'                
+        this.tap(() => {
+            this.borderColor = '#409eff'
             this.show = !this.show
         })
         this.hover(() => {
             document.body.style.cursor = 'pointer'
         })
-        window.addEventListener('mousemove', (event) => {
+        document.addEventListener('mousemove', (event) => {
             if (this.show) {
                 for (let item of this.optionPositions) {
                     if (event.clientX >= this.layout.left &&
@@ -52,7 +52,7 @@ class SelectComponent extends Component {
                 }
             }
         })
-        window.addEventListener('click', (event) => {
+        document.addEventListener('click', (event) => {
             if (this.show) {
                 for (let i = 0; i < this.optionPositions.length; i++) {
                     let item = this.optionPositions[i]
@@ -72,6 +72,7 @@ class SelectComponent extends Component {
     }
 
     draw() {
+        pen.reset()
         if (this.firstDraw) {
             this.firstDraw = false
             for (let item of this.props.options) {
@@ -91,49 +92,34 @@ class SelectComponent extends Component {
             }
         }
         // 边框
-        this.roundedRect(this.layout.left, this.layout.top, 240, 40, 4, this.borderColor)
+        pen.drawRect(this.layout.left, this.layout.top, 240, 40, 4)
+        pen.stroke(this.borderColor)
         // 箭头
-        this.context.fillStyle = '#c0c4cc'
-        this.context.textBaseline = 'top'
-        this.context.font = '14px sans-serif'
-        this.context.fillText('▽', this.layout.right - 30, this.layout.top + 12)
+        pen.drawText('▽', this.layout.right - 30, this.layout.top + 12, 14, '#c0c4cc')
         if (this.show) {
             // 菜单背景
             let width = parseInt(this.style['width'].value)
             let height = this.options.length * 36 + 15
-            this.roundedRect(this.layout.left, this.layout.bottom + 12, width, height, 4, '#e4e7ed')
-            this.context.fillStyle = 'white'
-            this.context.fill()
-            this.context.fillStyle = '#e4e7ed'
-            this.context.textBaseline = 'bottom'
-            this.context.font = '12px sans-serif'
-            this.context.fillText('△', this.layout.left + 35, this.layout.bottom + 14)
-            this.context.textBaseline = 'top'
+            pen.drawRect(this.layout.left, this.layout.bottom + 12, width, height, 4)
+            pen.stroke('#e4e7ed')
+            pen.fill('white')
+            pen.drawText('△', this.layout.left + 35, this.layout.bottom + 2, 12, '#e4e7ed')
             // 菜单内容
             for (let i = 0; i < this.options.length; i++) {
                 let item = this.optionPositions[i]
                 if (item.selected) {
-                    this.context.fillStyle = '#f5f7fa'
-                    this.context.fillRect(this.layout.left, this.layout.bottom + item.top, 240, 40)
+                    pen.drawRect(this.layout.left, this.layout.bottom + item.top, 240, 40, 0)
+                    pen.fill('#f5f7fa')
                 }
-                this.context.fillStyle = '#606266'
-                this.context.textBaseline = 'top'
-                this.context.font = '16px sans-serif'
-                this.context.fillText(this.options[i], this.layout.left + 20, this.layout.bottom + item.top + 10)
+                pen.drawText(this.options[i], this.layout.left + 20, this.layout.bottom + item.top + 10, 16, '#606266')
             }
         }
         if (this.selected) {
             // 选定内容
-            this.context.fillStyle = '#606266'
-            this.context.textBaseline = 'top'
-            this.context.font = '16px sans-serif'
-            this.context.fillText(this.selected, this.layout.left + 16, this.layout.top + 11)    
+            pen.drawText(this.selected, this.layout.left + 16, this.layout.top + 11, 16, '#606266')
         } else {
             // 提示文字
-            this.context.fillStyle = '#b9bcc5'
-            this.context.textBaseline = 'top'
-            this.context.font = '16px sans-serif'
-            this.context.fillText('Select', this.layout.left + 16, this.layout.top + 11)
+            pen.drawText('Select', this.layout.left + 16, this.layout.top + 11, 16, '#b9bcc5')
         }
     }
 }

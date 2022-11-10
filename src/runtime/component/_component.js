@@ -1,42 +1,18 @@
 class Component {
-    constructor(component, context) {
+    constructor(template, context) {
         this.vm = null
-        this.parent = component.parent
-        this.props = component.props
-        this.style = component.style
+        this.tagName = template.tagName
+        this.parent = template.parent
+        this.props = template.props
+        this.style = template.style
         this.context = context
         this.layout = {}
         this.children = []
     }
 
-    roundedRect(x, y, width, height, radius, color, style="solid"){
-        let lineWidth = this.context.lineWidth
-        if (style === 'dotted') {
-            this.context.setLineDash([lineWidth, lineWidth])
-        } else if (style === 'dashed') {
-            this.context.setLineDash([4 * lineWidth, 4 * lineWidth])
-        }
-        x += lineWidth / 2
-        y += lineWidth / 2
-        width -= lineWidth
-        height -= lineWidth
-        this.context.beginPath()
-        this.context.strokeStyle = color
-        this.context.moveTo(x, y + radius)
-        this.context.lineTo(x, y + height - radius)
-        this.context.quadraticCurveTo(x, y + height, x + radius, y + height)
-        this.context.lineTo(x + width - radius, y + height)
-        this.context.quadraticCurveTo(x + width, y + height, x + width, y + height - radius)
-        this.context.lineTo(x + width, y + radius)
-        this.context.quadraticCurveTo(x + width, y, x + width - radius, y)
-        this.context.lineTo(x + radius, y)
-        this.context.quadraticCurveTo(x, y, x, y + radius)
-        this.context.stroke()
-        this.context.setLineDash([])
-    }
-
+    // 鼠标事件
     hover(enterCallback, leaveCallback) {
-        window.addEventListener('mousemove', (event) => {
+        document.addEventListener('mousemove', (event) => {
             if (event.clientX >= this.layout.left &&
                 event.clientX <= this.layout.right &&
                 event.clientY >= this.layout.top &&
@@ -50,7 +26,7 @@ class Component {
     }
 
     mousedown(callback) {
-        window.addEventListener('mousedown', (event) => {
+        document.addEventListener('mousedown', (event) => {
             if (event.clientX >= this.layout.left &&
                 event.clientX <= this.layout.right &&
                 event.clientY >= this.layout.top &&
@@ -62,7 +38,7 @@ class Component {
     }
 
     mouseup(callback) {
-        window.addEventListener('mouseup', (event) => {
+        document.addEventListener('mouseup', (event) => {
             if (event.clientX >= this.layout.left &&
                 event.clientX <= this.layout.right &&
                 event.clientY >= this.layout.top &&
@@ -74,19 +50,7 @@ class Component {
     }
 
     mousemove(callback) {
-        window.addEventListener('mousemove', (event) => {
-            if (event.clientX >= this.layout.left &&
-                event.clientX <= this.layout.right &&
-                event.clientY >= this.layout.top &&
-                event.clientY <= this.layout.bottom)
-            {
-                callback(event)
-            }
-        })
-    }
-
-    click(callback) {
-        window.addEventListener('click', (event) => {
+        document.addEventListener('mousemove', (event) => {
             if (event.clientX >= this.layout.left &&
                 event.clientX <= this.layout.right &&
                 event.clientY >= this.layout.top &&
@@ -98,13 +62,96 @@ class Component {
     }
 
     dblclick(callback) {
-        window.addEventListener('dblclick', (event) => {
+        document.addEventListener('dblclick', (event) => {
             if (event.clientX >= this.layout.left &&
                 event.clientX <= this.layout.right &&
                 event.clientY >= this.layout.top &&
                 event.clientY <= this.layout.bottom)
             {
                 callback(event)
+            }
+        })
+    }
+
+    // 手势事件
+    // 轻点
+    tap(callback) {
+        document.addEventListener('tap', (event) => {
+            if (event.detail.clientX >= this.layout.left &&
+                event.detail.clientX <= this.layout.right &&
+                event.detail.clientY >= this.layout.top &&
+                event.detail.clientY <= this.layout.bottom)
+            {
+                callback(event.detail)
+            }
+        })
+    }
+    // 长按
+    pressstart(callback) {
+        document.addEventListener('pressstart', (event) => {
+            if (event.detail.clientX >= this.layout.left &&
+                event.detail.clientX <= this.layout.right &&
+                event.detail.clientY >= this.layout.top &&
+                event.detail.clientY <= this.layout.bottom)
+            {
+                callback(event.detal)
+            }
+        })
+    }
+    pressend(callback) {
+        document.addEventListener('pressend', (event) => {
+            if (event.detail.clientX >= this.layout.left &&
+                event.detail.clientX <= this.layout.right &&
+                event.detail.clientY >= this.layout.top &&
+                event.detail.clientY <= this.layout.bottom)
+            {
+                callback(event.detail)
+            }
+        })
+    }
+    // 拖动
+    panstart(callback) {
+        document.addEventListener('panstart', (event) => {
+            if (event.detail.startX >= this.layout.left &&
+                event.detail.startX <= this.layout.right &&
+                event.detail.startY >= this.layout.top &&
+                event.detail.startY <= this.layout.bottom)
+            {
+                callback(event.detail)
+            }
+        })
+    }
+    panmove(callback) {
+        document.addEventListener('panmove', (event) => {
+            if (event.detail.clientX >= this.layout.left &&
+                event.detail.clientX <= this.layout.right &&
+                event.detail.clientY >= this.layout.top &&
+                event.detail.clientY <= this.layout.bottom)
+            {
+                callback(event.detail)
+            }
+        })
+    }
+    panend(callback) {
+        document.addEventListener('panend', (event) => {
+            if (event.detail.clientX >= this.layout.left &&
+                event.detail.clientX <= this.layout.right &&
+                event.detail.clientY >= this.layout.top &&
+                event.detail.clientY <= this.layout.bottom)
+            {
+                callback(event.detail)
+            }
+        })
+    }
+    // 快扫
+    swipe(callback) {
+        document.addEventListener('swipe', (event) => {
+            if (event.detail.clientX >= this.layout.left &&
+                event.detail.clientX <= this.layout.right &&
+                event.detail.clientY >= this.layout.top &&
+                event.detail.clientY <= this.layout.bottom)
+            {
+                callback(event.detail)
             }
         })
     }

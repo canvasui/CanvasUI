@@ -1,14 +1,7 @@
-class TemplateParser {
-    constructor(template, context) {
-        this.template = template
-        this.context = context
-    }
+function construct(template, context) {
+    return traverse(template)
 
-    parse() {
-        return this.traverse(this.template)
-    }
-
-    traverse(component) {
+    function traverse(template, parent=null) {
         let componentObj = new ({
             button: ButtonComponent,
             checkbox: CheckboxComponent,
@@ -22,9 +15,12 @@ class TemplateParser {
             switch: SwitchComponent,
             template: TemplateComponent,
             text: TextComponent,
-        }[component.tagName])(component, this.context)
-        for (let child of component.children) {
-            componentObj.children.push(this.traverse(child))
+        }[template.tagName] ?? CustomComponent)(template, context)
+        if (parent) {
+            componentObj.parent = parent
+        }
+        for (let child of template.children) {
+            componentObj.children.push(traverse(child, componentObj))
         }
         return componentObj
     }

@@ -1,6 +1,6 @@
 class ButtonComponent extends Component {
-    constructor(component, context) {
-        super(component, context)
+    constructor(template, context) {
+        super(template, context)
         this.borderColor = '#dcdfe6'
         this.backgroundColor = '#ffffff'
         this.labelColor = '#606266'
@@ -40,29 +40,24 @@ class ButtonComponent extends Component {
             this.borderColor = '#c6e2ff'
             this.labelColor = '#409eff'
         })
-        this.click(() => {
+        this.tap(() => {
             this.props['@click']()
         })
     }
 
     draw() {
+        pen.reset()
         // 边框
         let width = parseInt(this.style['width'].value)
         let height = parseInt(this.style['height'].value)
-        this.roundedRect(this.layout.left, this.layout.top, width, height, 4, this.borderColor)
+        pen.drawRect(this.layout.left, this.layout.top, width, height, 4)
+        pen.stroke(this.borderColor)
         // 背景
-        this.context.fillStyle = this.backgroundColor
-        this.context.fill()
+        pen.fill(this.backgroundColor)
         // 文字
-        this.context.textBaseline = 'top'
-        this.context.font = '14px sans-serif'
-        this.context.fillStyle = this.labelColor
-        let labelStart = { x: 21, y: 13}
-        let labelWidth = this.context.measureText(this.props.label).width
-        if (labelWidth < 58) {
-            labelStart.x = (100 - labelWidth) / 2
-        }
-        this.context.fillText(this.props.label, this.layout.left + labelStart.x, this.layout.top + labelStart.y)
+        let x = this.layout.left + width / 2
+        let y = this.layout.top + 13
+        pen.drawText(this.props.label, x, y, 14, this.labelColor, 'center')
     }
 }
 
