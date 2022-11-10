@@ -1,6 +1,7 @@
 class Component {
     constructor(template, context) {
         this.vm = null
+        this.initQueue = []
         this.tagName = template.tagName
         this.parent = template.parent
         this.props = template.props

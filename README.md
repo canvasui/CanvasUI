@@ -23,23 +23,26 @@
 
 ## Sample code
 ```html
-<style>
-.hello {
-    font-size: 50px;
+<script>
+let count = 0
+
+function increment() {
+    count += 1
 }
-</style>
+
+return { count, increment }
+</script>
 
 <template>
-    <text class="hello" content="hello { name } !"></text>
+    <button label="click { count } times" @click="{ increment }"></button>
 </template>
 
-<script>
-return {
-    data: {
-        name: 'world',
-    },
+<style>
+template {
+    justify-content: center;
+    align-items: center;
 }
-</script>
+</style>
 ```
 
 

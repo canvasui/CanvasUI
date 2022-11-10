@@ -18,7 +18,7 @@ function compile(sourceCode) {
             }
         }
         let children = stack[0].children
-        let style = children.find(child => child.tagName === 'style')?.children[0]?.content.trim() ?? ''
+        let script = children.find(child => child.tagName === 'script')?.children[0]?.content.trim() ?? ''
         let template = children.find(child => child.tagName === 'template') ?? {
             type: 'component',
             tagName: 'template',
@@ -27,11 +27,11 @@ function compile(sourceCode) {
             parent: { type: 'component' },
             style: {},
         }
-        let script = children.find(child => child.tagName === 'script')?.children[0]?.content.trim() ?? ''
+        let style = children.find(child => child.tagName === 'style')?.children[0]?.content.trim() ?? ''
         return {
-            style: parseStyle(style),
+            script: script,
             template: filterTemplate(template),
-            script: (new Function(script))(),
+            style: parseStyle(style),
         }
     }
 
@@ -65,6 +65,7 @@ function compile(sourceCode) {
         } else if (token.type === 'endTag' && top.tagName === token.tagName) {
             stack.pop()
         }
+        currentToken = null
     }
 
     function atData(char) {
