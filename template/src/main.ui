@@ -1,0 +1,65 @@
+<style>
+template {
+    flex-direction: column;
+    align-items: center;
+}
+.hello {
+    color: gray;
+    font-size: 50px;
+}
+image {
+    width: 320px;
+    height: 200px;
+}
+div {
+    justify-content: space-around;
+    align-items: center;
+    margin: 10px;
+    width: 700px;
+    height: 100px;
+    border: 1px gray dotted;
+    border-radius: 10px;
+    padding: 5px;
+}
+</style>
+
+<template>
+    <text class="hello" content="hello { name } !"></text>
+    <image path="{ imagePath }"></image>
+    <div>
+        <button label="Button" @click="{ reverse }"></button>
+        <input value="{ name }" hint="Please input..."></input>
+    </div>
+    <div>
+        <checkbox value="{ checked }" label="Checkbox"></checkbox>
+        <radio value="{ radioValue }" label="Radio1" option="foo"></radio>
+        <radio value="{ radioValue }" label="Radio2" option="bar"></radio>
+        <switch value="{ switchValue }"></switch>
+    </div>
+    <div>
+        <color value="{ colorValue }"></color>
+        <slider value="{ percent }"></slider>
+        <select value="{ selectValue }" options="{ selectOptions }"></select>
+    </div>
+</template>
+
+<script>
+return {
+    data: {
+        name: 'world',
+        imagePath: 'a.jpg',
+        checked: true,
+        radioValue: 'bar',
+        switchValue: true,
+        colorValue: 'red',
+        percent: 50,
+        selectValue: '',
+        selectOptions: ["foo", "bar", "hello", "world", "aaa", "bbb"]
+    },
+    methods: {
+        reverse() {
+            this.name = this.name.split('').reverse().join('')
+        },
+    }
+}
+</script>
