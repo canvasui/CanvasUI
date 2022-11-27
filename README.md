@@ -1,6 +1,8 @@
 # CanvasUI
 `CanvasUI` is a canvas-based UI framework.
 
+[Online Demo (a page with only one &lt;canvas&gt;)](https://canvasui.js.org/example/)
+
 
 ## Introduction
 `CanvasUI` <strong>re-implements</strong> key technologies of modern front-end development. It is based on HTML &lt;canvas&gt;, just using Vanilla JS, no external dependency, it contains:
