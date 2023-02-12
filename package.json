@@ -1,6 +1,6 @@
 {
   "name": "canvasui",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "CanvasUI is a canvas-based UI framework.",
   "bin": "./script/create.js",
   "author": "Zhilin Liu",
