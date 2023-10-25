@@ -8,11 +8,21 @@ function compile(sourceCode) {
     let currentToken = null
     let currentProp = null
     let currentCode = null
+    let row = 1
+    let column = 0
     return parse()
 
     function parse() {
         for (let char of sourceCode) {
+            column += 1
+            if (char === '\n') {
+                row += 1
+                column = 0
+            }
             state = state(char)
+            if (state === void 0) {
+                return error(`Compile Error: Unexpected token '${char}' at [line: ${row}, column: ${column}]`)
+            }
             if (currentToken?.tagName === 'script' && state === atData) {
                 state = atScript
             }
@@ -28,6 +38,9 @@ function compile(sourceCode) {
             style: {},
         }
         let style = children.find(child => child.tagName === 'style')?.children[0]?.content.trim() ?? ''
+        if (stack.length > 1) {
+            return error('Compile Error: You may have unclosed tags')
+        }
         return {
             script: script,
             template: filterTemplate(template),
@@ -66,6 +79,10 @@ function compile(sourceCode) {
             stack.pop()
         }
         currentToken = null
+    }
+
+    function error(message) {
+        return { error: message }
     }
 
     function atData(char) {

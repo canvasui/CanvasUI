@@ -7,7 +7,11 @@ function main() {
 
     // 遍历 componentJson, 转换为若干 Component 对象, 并挂在 components 上
     for (let [key, value] of Object.entries(componentJson)) {
-        let { style, template, script } = value
+        let { style, template, script, error } = value
+        if (error) {
+            document.body.innerHTML = `<div style="font-size: 30px; color: red;">${error}</div>`
+            return
+        }
         let component = construct(template, canvas.context)
         bindData(component, style, script)
         components[key] = component
